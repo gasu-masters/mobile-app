@@ -6,9 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
-Future<ItemData> fetchItemData() async {
+Future<ItemData> fetchItemData(String barCode) async {
   final response = await http
-      .get(Uri.parse('https://autobahn.eu.pythonanywhere.com/4607084351385'));
+      .get(Uri.parse('https://autobahn.eu.pythonanywhere.com/$barCode'));
 
   return ItemData.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
 }
@@ -66,12 +66,16 @@ Widget renderResult(item) => Column(children: <Widget>[
 
 class _MyAppState extends State<MyApp> {
   late Future<ItemData> futureItemData;
-  String _scanBarcode = 'Неизвестный';
+  String _scanBarcode = '4607084351385';
+
+  void fetchBarCodeData() {
+    futureItemData = fetchItemData(_scanBarcode);
+  }
 
   @override
   void initState() {
     super.initState();
-    futureItemData = fetchItemData();
+    fetchBarCodeData();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -93,6 +97,7 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       _scanBarcode = barcodeScanRes;
+      fetchBarCodeData();
     });
   }
 
